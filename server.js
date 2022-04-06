@@ -70,20 +70,35 @@ const start = () => {
 
 // function to view all departments 
 const viewDepartments = () => {
-    console.log('Viewing all departments');
-    start();
+    db.promise().query('SELECT * FROM department')
+    .then( ([rows, fields]) => {
+        console.table('All Departments', rows);
+    })
+    .then( () => {
+        start()
+    });
 };
 
 // function to view all roles 
 const viewRoles = () => {
-    console.log('Viewing all roles');
-    start();
+    db.promise().query('SELECT * FROM role')
+    .then( ([rows, fields]) => {
+        console.table('All Roles', rows);
+    })
+    .then( () => {
+        start()
+    });
 };
 
 // function to view all employees 
 const viewEmployees = () => {
-    console.log('Viewing all employees');
-    start(); 
+    db.promise().query('SELECT * FROM employee')
+    .then( ([rows, fields]) => {
+        console.table('All Employees', rows);
+    })
+    .then( () => {
+        start()
+    });
 };
 
 // function to add a department 
