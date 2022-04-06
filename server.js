@@ -12,20 +12,24 @@ const db = mysql.createConnection({
 
 // function to start app 
 const start = () => {
-    inquirer.prompt({
-        name: 'options', 
-        type: 'list',
-        message: 'What would you like to do?',
-        choices: [
-            'View all departments',
-            'View all roles',
-            'View all employees',
-            'Add a department',
-            'Add a role',
-            'Add an employee',
-            'Update an employee role'
-        ]
-    })
+    inquirer.prompt(
+        {
+            type: 'list',
+            name: 'options',
+            message: 'What would you like to do?',
+            choices: [
+                'View all departments',
+                'View all roles',
+                'View all employees',
+                'Add a department',
+                'Add a role',
+                'Add an employee',
+                'Update an employee role',
+                'Quit',
+                new inquirer.Separator()
+            ]
+        }
+    )
     .then((response) => {
         switch (response.options) {
             case 'View all departments':
@@ -57,6 +61,7 @@ const start = () => {
                 break; 
             
             case 'Quit': 
+                console.log('Goodbye!')
                 db.end(); 
                 break;
         }
@@ -64,25 +69,46 @@ const start = () => {
 };
 
 // function to view all departments 
-viewDepartments();
+const viewDepartments = () => {
+    console.log('Viewing all departments');
+    start();
+};
 
 // function to view all roles 
-viewRoles();
+const viewRoles = () => {
+    console.log('Viewing all roles');
+    start();
+};
 
 // function to view all employees 
-viewEmployees();
+const viewEmployees = () => {
+    console.log('Viewing all employees');
+    start(); 
+};
 
 // function to add a department 
-addDepartment(); 
+const addDepartment = () => {
+    console.log('Adding department');
+    start(); 
+};
 
 // function to add a role 
-addRole();
+const addRole = () => {
+    console.log('Adding role');
+    start();
+};
 
 // function to add an employee
-addEmployee();
+const addEmployee = () => {
+    console.log('Adding employee');
+    start(); 
+};
 
 // function to update an employee role 
-updateEmployeeRole();
+const updateEmployeeRole = () => {
+    console.log('Updating employee');
+    start(); 
+};
 
 // call db connection & start app 
 db.connect((err) => {
