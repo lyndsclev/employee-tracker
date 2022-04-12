@@ -103,8 +103,23 @@ const viewEmployees = () => {
 
 // function to add a department 
 const addDepartment = () => {
-    console.log('Adding department');
-    start(); 
+    inquirer.prompt(
+        {
+            name: 'name', 
+            type: 'input', 
+            message: 'Enter new department name'
+        }
+    )
+    .then((response) => {
+        db.query('INSERT INTO department SET ?', {
+            name: response.name
+        },
+        (err, res) => {
+            if(err) throw err; 
+            console.log('Department added!')
+            start(); 
+        });
+    });
 };
 
 // function to add a role 
