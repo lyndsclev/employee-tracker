@@ -2,6 +2,9 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 
+const viewAllEmployees = 'SELECT employee.id, employee.first_name AS "First Name", employee.last_name AS "Last Name", role.title as Title, role.salary as Salary, department.name AS Department, m.first_name AS Manager FROM employee INNER JOIN role ON employee.role_id=role.id INNER JOIN department ON role.department_id=department.id LEFT JOIN employee m ON employee.manager_id=m.id';
+
+
 // db connection 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -92,7 +95,7 @@ const viewRoles = () => {
 
 // function to view all employees 
 const viewEmployees = () => {
-    db.promise().query('SELECT * FROM employee')
+    db.promise().query(viewAllEmployees)
     .then( ([rows, fields]) => {
         console.table('All Employees', rows);
     })
