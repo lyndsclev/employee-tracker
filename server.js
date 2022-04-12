@@ -127,8 +127,48 @@ const addDepartment = () => {
 
 // function to add a role 
 const addRole = () => {
-    console.log('Adding role');
-    start();
+    db.query('SELECT * FROM department', (err, results) => {
+        if(err) throw err; 
+
+        inquirer.prompt([
+            {
+                name: 'department',
+                type: 'list', 
+                choices: function () {
+                    const deptArr = []; 
+                    results.forEach(({ id, name }) => {
+                        deptArr.push({
+                            name: name, 
+                            value: id
+                        });
+                    });
+                    return deptArr; 
+                }
+            },
+            {
+                name: 'title',
+                type: 'input',
+                message: 'Enter new role title'
+            },
+            {
+                name: 'salary', 
+                type: 'input', 
+                message: 'Enter new role salary'
+            }
+        ])
+        .then((response) => {
+            db.query('INSERT INTO role SET ?', {
+                title: response.title, 
+                salary: response.salary,
+                department_id: response.department
+            },
+            (err, res) => {
+                if(err) throw err; 
+                console.log('Role added!')
+                start(); 
+            });
+        });
+    });
 };
 
 // function to add an employee
