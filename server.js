@@ -2,9 +2,6 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 
-const viewAllEmployees = 'SELECT employee.id, employee.first_name AS "First Name", employee.last_name AS "Last Name", role.title as Title, role.salary as Salary, department.name AS Department, m.first_name AS Manager FROM employee INNER JOIN role ON employee.role_id=role.id INNER JOIN department ON role.department_id=department.id LEFT JOIN employee m ON employee.manager_id=m.id';
-
-
 // db connection 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -75,6 +72,7 @@ const start = () => {
 const viewDepartments = () => {
     db.promise().query('SELECT * FROM department')
     .then( ([rows, fields]) => {
+        console.log('')
         console.table('All Departments', rows);
     })
     .then( () => {
@@ -86,6 +84,7 @@ const viewDepartments = () => {
 const viewRoles = () => {
     db.promise().query('SELECT * FROM role')
     .then( ([rows, fields]) => {
+        console.log('')
         console.table('All Roles', rows);
     })
     .then( () => {
@@ -95,8 +94,9 @@ const viewRoles = () => {
 
 // function to view all employees 
 const viewEmployees = () => {
-    db.promise().query(viewAllEmployees)
+    db.promise().query('SELECT * FROM employee')
     .then( ([rows, fields]) => {
+        console.log('')
         console.table('All Employees', rows);
     })
     .then( () => {
@@ -119,7 +119,9 @@ const addDepartment = () => {
         },
         (err, res) => {
             if(err) throw err; 
+            console.log('')
             console.log('Department added!')
+            console.log('')
             start(); 
         });
     });
@@ -164,7 +166,9 @@ const addRole = () => {
             },
             (err, res) => {
                 if(err) throw err; 
+                console.log('')
                 console.log('Role added!')
+                console.log('')
                 start(); 
             });
         });
@@ -173,9 +177,74 @@ const addRole = () => {
 
 // function to add an employee
 const addEmployee = () => {
-    console.log('Adding employee');
-    start(); 
-};
+        db.query('SELECT * FROM role', (err, results) => {
+            if(err) throw err; 
+    
+            inquirer.prompt([
+                {
+                    name: 'role',
+                    type: 'list', 
+                    choices: function () {
+                        const roleArr = []; 
+                        results.forEach(({ title, id }) => {
+                            roleArr.push({
+                                name: title, 
+                                value: id
+                            });
+                        });
+                        return roleArr; 
+                    }
+                }
+            ])
+            .then( () => {
+                db.query('SELECT * FROM employee', (err, results) => {
+                    if(err) throw err; 
+
+                    inquirer.prompt([
+                        {
+                            name: 'manager', 
+                            type: 'list', 
+                            choices: function () {
+                                const managerArr = []; 
+                                results.forEach(({ id, first_name, last_name }) => {
+                                    managerArr.push({
+                                        name: first_name + ' ' + last_name, 
+                                        value: id
+                                    });
+                                });
+                                return managerArr; 
+                            }
+                        }, 
+                        {
+                            name: 'firstName', 
+                            type: 'input', 
+                            message: 'Enter employee first name'
+                        },
+                        {
+                            name: 'lastName',
+                            type: 'input', 
+                            message: 'Enter employee last name'
+                        }
+                    ])
+                    .then((response) => {
+                        db.query('INSERT INTO employee SET ?', {
+                            first_name: response.firstName,
+                            last_name: response.lastName,
+                            role_id: response.role,
+                            manager_id: response.manager
+                        },
+                        (err, res) => {
+                            if(err) throw err; 
+                            console.log('')
+                            console.log('Employee added!');
+                            console.log('')
+                            start();
+                        });
+                    });
+                });
+            }); 
+        });
+    };
 
 // function to update an employee role 
 const updateEmployeeRole = () => {
