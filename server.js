@@ -248,9 +248,70 @@ const addEmployee = () => {
 
 // function to update an employee role 
 const updateEmployeeRole = () => {
-    console.log('Updating employee');
-    start(); 
+    db.query('SELECT * FROM employee', (err, results) => {
+        if(err) throw err; 
+
+        inquirer.prompt([
+            {
+                name: 'employee',
+                type: 'list', 
+                message: 'Choose which employee you need to update',
+                choices: function () {
+                    const employeeArr = []; 
+                    results.forEach(({ id, first_name, last_name }) => {
+                        employeeArr.push({
+                            name: first_name + ' ' + last_name,
+                            value: id
+                        });
+                    });
+                    return employeeArr; 
+                }
+            }
+        ])
+        .then( () => {
+            db.query('SELECT * FROM role', (err, results) => {
+                if(err) throw err; 
+
+                inquirer.prompt([
+                    {
+                        name: 'role', 
+                        type: 'list', 
+                        message: 'Choose new role',
+                        choices: function () {
+                            const roleChoiceArr = []; 
+                            results.forEach(({ title, id }) => {
+                                roleChoiceArr.push({
+                                    name: title, 
+                                    value: id
+                                });
+                            });
+                            return roleChoiceArr; 
+                        }
+                    }
+                ])
+                .then((response) => {
+                    db.query('UPDATE employee SET ? WHERE ?', 
+                    [
+                        {
+                            role_id: response.role
+                        },
+                        {
+                            id: response.employee
+                        }
+                    ],
+                    (err, res) => {
+                        if(err) throw err; 
+                        console.log(res)
+                        console.log(`${res.affectedRows} Employee successfully updated!`);
+                        console.log('')
+                        start();
+                    });
+                });
+            });
+        }); 
+    });
 };
+
 
 // call db connection & start app 
 db.connect((err) => {
